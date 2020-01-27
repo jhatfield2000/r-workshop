@@ -473,11 +473,10 @@ gg_base + geom_point()</code></pre>
 <h3>Split the charts to individual charts by park name</h3>
 <pre class="r"><code>my_np_graph &lt;- ggplot(data = ca_np, aes(x= year, y = visitors)) +
   geom_point(aes(color = park_name), show.legend = FALSE) +
-  facet_wrap(~park_name, scales = &quot;free&quot;) +
+  facet_wrap(~park_name, scales = &quot;free_y&quot;) +
   theme_minimal()</code></pre>
 <p>Export my graph as a .png</p>
-<pre class="r"><code>ggsave(plot = my_np_graph, here(&quot;figures&quot;, &quot;np_graph.png&quot;))</code></pre>
-<pre><code>## Saving 7 x 5 in image</code></pre>
+<pre class="r"><code>ggsave(plot = my_np_graph, here(&quot;figures&quot;, &quot;np_graph.png&quot;), width = 10, height = 7, units = &quot;in&quot;)</code></pre>
 </div>
 </div>
 
