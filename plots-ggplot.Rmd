@@ -95,3 +95,39 @@ gg_base +
   )
 ```
 
+### Use gg-themes for overall updates
+
+- theme_light()
+= theme_minimal()
+- theme_bw()
+
+```{r ggplot_themes}
+gg_base +
+  geom_area() +
+  theme_classic()
+```
+
+### Create a multi-series line plot for all CA National Parks
+
+```{r ggplot_multi_series}
+ggplot(data = ca_np, aes(x = year, y = visitors, group = park_name)) +
+  geom_line(aes(
+    color = park_name
+  )) +
+  theme_minimal()
+```
+
+### Split the charts to individual charts by park name
+
+```{r ggplot_facets}
+my_np_graph <- ggplot(data = ca_np, aes(x= year, y = visitors)) +
+  geom_point(aes(color = park_name), show.legend = FALSE) +
+  facet_wrap(~park_name, scales = "free") +
+  theme_minimal()
+```
+
+Export my graph as a .png
+```{r ggplot_export}
+ggsave(plot = my_np_graph, here("figures", "np_graph.png"))
+```
+
