@@ -29,15 +29,69 @@ library(here) # install.packages("here")
 
 ca_np <- read_csv(here("data", "ca_np.csv"))
 
-# can also be written:
-# ca_np <- read_csv(here("data/ca_np.csv"))
-
-# can also be written
-# ca_np <- read_csv("data/ca_np.csv")
-
-ci_np <- read_excel(here("data", "ci_np.xlsx"))
+ci_np <- read_xlsx(here("data", "ci_np.xlsx"))
 
 # can also use read_xls or read_xlsx as appropriate
 
+```
+
+
+### Make my own first graph!
+
+We're going to make a line plot of year (x-variable) vs visitors (y-variable) in ggplot:
+
+Insert chunk shortcut of Ctrl-Alt-I
+```{r ggplot_init}
+ggplot(data = ci_np, aes(x = year, y = visitors)) +
+  geom_line()
+
+# Update the geom_ to geom_point(), geom_col(), geom_area()
+```
+
+Making a base layer for my CI plots:
+
+```{r ggplot_base}
+gg_base <- ggplot(data = ci_np, aes(x = year, y = visitors))
+
+gg_base + geom_point()
+```
+
+### Now let's start customizing!
+
+- Line / point colors: color
+- Change line type: linetype
+- Change point style: pch
+- Change transparency: alpha
+
+```{r ggplot_customizing}
+gg_base +
+  geom_line(
+    color = "purple",
+    linetype = "dashed"
+  )
+```
+
+### New geom_point with triangles, color, and a different size
+
+```{r}
+gg_base +
+  geom_point(
+    col = "green",
+    pch = 2,
+    size = 4
+  )
+```
+
+### Update graph aesthetics based on variables
+
+```{r}
+gg_base +
+  geom_point(
+    aes(
+      size = visitors,
+      color = year
+    ),
+    pch = 6
+  )
 ```
 
