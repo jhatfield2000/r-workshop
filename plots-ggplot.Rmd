@@ -3,8 +3,23 @@ title: "Creating graphs with ggplot2"
 author: "Jason"
 date: "1/27/2020"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 # Plots with ggplot2
 
 We are going to make plots in R using the ggplot2 package from the tidyverse. 
+
+We will install these packages:
+
+- tidyverse: suite of packages for wrangling & iz (ggplot)
+- readxl: to read in excel files (in many ways)
+- here: to help with filepaths
+
+```{r setup, message=FALSE}
+library(tidyverse) # install.packages("tidyverse")
+library(readxl) # install.packages("readxl")
+library(here) # install.packages("here")
+```
+
