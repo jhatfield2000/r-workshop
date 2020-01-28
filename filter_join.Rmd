@@ -1,0 +1,151 @@
+---
+title: "Filters and joins"
+author: "Jason"
+date: "1/28/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+library(tidyverse) # install.packages("tidyverse")
+library(readxl) # install.packages("readxl")
+library(here) # install.packages("here")
+library(kableExtra) # install.packages("kableExtra")
+```
+
+Get some fish data (fish.csv) and kelp data (kelp_fronds.xlsx)
+
+```{r load data}
+fish <- read_csv(here("data", "fish.csv"))
+kelp_abur <- read_xlsx(here("data", "kelp_fronds.xlsx"))
+
+# add ", sheet = 'sheet_name'" before the last parentheses if there are multiple sheets.
+# eading from Excel only pulls in the first worksheet.
+```
+
+### Filter by an exact match
+
+Exact match: `==`
+
+Example 1:  only keep observations from `fish` where the common_name variable matches (==) "garibaldi"
+
+```{r Filter exact match}
+fish_garibaldi <- fish %>% 
+  filter(common_name == "garibaldi")
+```
+
+>, <, >=, <=, == as filter match types
+
+Create a subset of fish called fish_over50, starting from fish, where the total_count is greater than OR equal to 50.
+
+```{r fish over 50}
+fish_over50 <- fish %>% 
+  filter(total_count >= 50)
+
+```
+
+### What if we want to filter by this OR this?
+
+You can use the vertical line `|` for "or"
+
+
+```{r filtering with multiple criteria and OR}
+fish_2sp <- fish %>% 
+  filter(common_name == "garibaldi" | common_name == "blacksmith")
+
+# If you're filtering for ultiple matches within the same variable, you can use %in%
+
+fish_3sp <- fish %>% 
+  filter(common_name %in% c("garibaldi","blacksmith","black surfperch"))
+```
+
+Activity:  subste from fish (fish_gar_2016) that keeps all observations where the year is 2016 OR the common_name is "garibaldi"
+
+```{r two separate conditions with OR}
+fish_gar_2016 <- fish %>% 
+  filter(common_name == "garibaldi" | year == 2016)
+```
+
+### Filter to match this AND that
+
+, or &
+
+```{r two conditions with AND}
+aque_2018 <- fish %>% 
+  filter(year == 2018, site == "aque")
+```
+
+To exclude things: `!=`
+
+### `stringr::str_detect()`
+
+```{r string detect in filter}
+fish_black <- fish %>% 
+  filter(stringr::str_detect(common_name, pattern = "black"))
+```
+
+Subset of data if the common name must include the string "it"?
+
+```{r string detect it in filter}
+fish_it <- fish %>% 
+  filter(str_detect(common_name, pattern = "it"))
+```
+
+### `dplyr::*_join`
+
+```{r full join}
+ab_kelpfish <- kelp_abur %>% 
+  full_join(fish, by = c("year", "site"))
+```
+
+### `left_join()` to keep all from x, and merge matching rows from y (exclude things from y that don't have a match in x)
+
+```{r left join}
+kelp_fish_left <- kelp_abur %>% 
+  left_join(fish, by = c("year", "site"))
+
+# There is also a right join
+```
+
+### `inner_join()` to merge data frames, only keeping observations with a match in both
+
+```{r inner join}
+kelp_fish_inner <- kelp_abur %>% 
+  inner_join(fish, by = c("year", "site"))
+```
+
+### Pipe together multiple steps
+
+- create an object called `my_fish_join`
+- starting from `fish`
+- filtering to only include observations at site "abur" from the year 2017
+- join the kelp_abur data frame to the resulting subset using `left_join()`
+- add a new column (`mutate()`) to calculate fish per kelp frond density (counts of fish / total fronds)
+
+```{r piping multiple steps}
+my_fish_join <- fish %>% 
+  filter(site == "abur" & year == 2017) %>% 
+  left_join(kelp_abur, by = c("year", "site")) %>% 
+  mutate(fish_per_frond = total_count/total_fronds)
+
+```
+
+Nice HTML table using kableExtra
+
+```{r turn the data frame into a table}
+my_fish_join %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = "striped",
+                full_width = FALSE)
+```
+
+Activity:  make a chart with x as common_name, and y as fish per frond, geom is column
+
+```{r plot the fish per frond by fish name}
+ggplot(data = my_fish_join, aes(x = common_name, y = fish_per_frond)) +
+  geom_col(aes(fill = common_name))
+```
+
+
