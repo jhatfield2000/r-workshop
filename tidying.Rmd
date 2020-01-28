@@ -1,0 +1,120 @@
+---
+title: "Tidying session"
+author: "Jason"
+date: "1/28/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+
+# Attaching packages
+library(tidyverse) # install.packages("tidyverse")
+library(janitor) # install.packages("janitor")
+library(here) # install.packages("here")
+library(readxl) # install.packages("readxl")
+```
+
+### Read in inverts.xlsx
+
+```{r read_inverts}
+inverts <- read_xlsx(here("data", "inverts.xlsx"))
+```
+
+### `pivot_longer()`
+
+Use single colon (:) to indicate a series of sequential columns.  eg: A:D
+```{r longer_inverts}
+inverts_long <- pivot_longer(data = inverts,
+                             cols = '2016':'2018',
+                             names_to = "year",
+                             values_to = "sp_count")
+
+# What if you want some in series and some NOT in series?
+# c('2016':'2018', '2020')
+```
+
+What if we want to get it back into wide format?
+
+```{r wider_inverts}
+inverts_wide <- inverts_long %>% 
+  pivot_wider(names_from = common_name,
+              values_from = sp_count)
+```
+
+### Use `janitor::clean_names()`
+
+```{r clean_wider_inverts}
+inverts_wide <- inverts_wide %>% 
+  janitor::clean_names()
+```
+
+### `tidyr::unite()` to combine information from columns
+
+Example: merge the site code and year into a single column called "site_year"
+```{r merge_inverts_long}
+inverts_unite <- inverts_long %>% 
+  tidyr::unite(col = "site_year",
+               c(site, year),
+               sep = "_")
+```
+
+### Activity:
+
+Creat a new object called 'inverts_moyr' starting from inverts_long that unties the month and year columns into a SINGLE column names "mo_yr", using a slash "/" as the separator ... then try some other fun separators.
+
+```{r combine_month_year}
+inverts_moyr <- inverts_long %>% 
+  unite(col="mo_yr",
+        c(month, year),
+        sep = "/")
+
+# use random separators
+inverts_moyr2 <- inverts_long %>% 
+  unite(col="mo_yr",
+        c(month, year),
+        sep = "&")
+
+# can merge more than 2 columns by adding the additional column to the "c()" line
+```
+
+### `tidyr::separate()`
+
+```{r separating_column}
+inverts_sep <- inverts_unite %>% 
+  tidyr::separate(col = site_year,
+                  into = c("my_site","my_year"),
+                  sep = "_")
+```
+
+### `stringr` + `mutate()`
+
+Example: using the built-in `trees1 dataset with mutate() to add 5 to all of the tree heights
+```{r mutate data}
+trees_new <- trees %>% 
+  mutate(height_update = Height + 5)
+```
+
+### `str_replace()`
+
+Example: replace california with CA
+```{r replace string}
+ca_abbr <- inverts %>% 
+  mutate(common_name =
+           str_replace(common_name,
+                       pattern = "california", 
+                       =replacement = "CA"))
+```
+
+Example: In the common_name column from inverts, you want to replace "spiny" with "awesome" and put it in 'awesome_lobsters'
+```{r awesome lobsters}
+awesome_lobsters <- inverts %>% 
+  mutate(common_name =
+           str_replace(common_name,
+                       pattern = "spiny", 
+                       replacement = "awesome"))
+
+```
+
