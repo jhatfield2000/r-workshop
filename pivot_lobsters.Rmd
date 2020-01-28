@@ -1,0 +1,86 @@
+---
+title: "Pivot Lobsters"
+author: "Jason"
+date: "1/27/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+Attaching our packages and reading in data
+
+```{r packages_and_data}
+library(tidyverse)
+library(readxl)
+library(here)
+library(skimr) # install.packages("skimr")
+library(kableExtra) # install.packages("kableExtra")
+
+# read in lobster data"
+lobsters <- read_xlsx(here("data", "lobsters.xlsx"),
+                      skip=4)
+
+```
+
+Viewing our data with skimr
+
+```{r skimming_lobsters}
+skimr::skim(lobsters)
+# could have run w/o "skimr::", but this provides the package if
+# someone is unaware of the package being installed for skim.
+```
+
+# Pivot Tables
+In R, Pivot tables are: `group_by() %>% summarize()`
+`n()` function will count observations
+
+```{r pivot_lobsters}
+# group by year
+lobsters %>%
+  group_by(year) %>% 
+  summarize(count_by_year = n())
+
+#group by year and site
+lobsters %>%
+  group_by(site, year) %>% 
+  summarize(count_by_site_year = n())
+
+# ctrl-shft-m is a short-cut for %>%
+```
+
+Summarize by multiple variables
+
+```{r pivot_multi_lobsters}
+siteyear_summary <- lobsters %>% 
+  group_by(site, year) %>% 
+  summarize(count_by_site_year = n(),
+            mean_size_mm = mean(size_mm, na.rm = TRUE),
+            sd_size_mm = sd(size_mm, na.rm = TRUE))
+
+# 'mean' and 'sd' will give 'NA' if there are any missing values
+# 'na.rm = TRUE' will allow it to give the value without the missing data
+```
+
+Table formatting with kableExtra::kable()
+
+```{r build_table}
+siteyear_summary %>% 
+  kableExtra::kable()
+```
+
+There are `r nrow(lobsters)` total lobsters included in this report.
+
+## Activity
+1. build from our analyses: calculate the median lobster size for each site and year (hint: 'size_mm' and a function called `median()`
+2. sync this to github
+
+```{r activity}
+median_size <- lobsters %>% 
+  group_by(site, year) %>% 
+  summarize(median_size_mm = median(size_mm, na.rm = TRUE))
+
+ggplot(data = median_size, aes(x = year, y = median_size_mm, color = site)) +
+  geom_line()
+ggsave(here("figures", "lobsters-plot.png"))
+```
+
