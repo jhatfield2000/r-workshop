@@ -1277,7 +1277,10 @@ napl
 </ol>
 <pre class="r"><code>median_size &lt;- lobsters %&gt;% 
   group_by(site, year) %&gt;% 
-  summarize(median_size_mm = median(size_mm, na.rm = TRUE))
+  summarize(count_by_site_year = n(),
+            mean_size_mm = mean(size_mm, na.rm = TRUE),
+            sd_size = sd(size_mm, na.rm = TRUE),
+            median_size_mm = median(size_mm, na.rm = TRUE))
 
 ggplot(data = median_size, aes(x = year, y = median_size_mm, color = site)) +
   geom_line()</code></pre>
